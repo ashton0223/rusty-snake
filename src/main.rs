@@ -10,6 +10,8 @@ use sdl2::{event::Event};
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 use sdl2::rect::Rect;
+use sdl2::render::Canvas;
+use sdl2::video::Window;
 
 const MULTIPLIER: u32 = 16;
 const LENGTH_TEST: u32 = 32;
@@ -17,6 +19,33 @@ const LENGTH_TEST: u32 = 32;
 fn gen_coordinates(min: &u32, max: &u32) -> (usize, usize) {
     let mut rng = rand::thread_rng();
     (rng.gen_range(0..*min as usize), rng.gen_range(0..*max as usize))
+}
+
+fn draw_screen(canvas: &mut Canvas<Window>, grid: &Vec<Vec<u8>>) {
+            // Draw changes
+        // 1 is part of the snake, 2 is apple
+        for (x, x_item) in grid.iter().enumerate() {
+            for (y, y_item) in x_item.iter().enumerate() {
+                if *y_item == 1 {
+                    canvas.set_draw_color(Color::RGB(255, 255, 255));
+                    canvas.fill_rect(Rect::new(
+                        x as i32 * MULTIPLIER as i32,
+                        y as i32 * MULTIPLIER as i32, 
+                        MULTIPLIER, 
+                        MULTIPLIER
+                    )).expect("Drawing failed");
+                } else if *y_item == 2 {
+                    canvas.set_draw_color(Color::RED);
+                    canvas.fill_rect(Rect::new(
+                        x as i32 * MULTIPLIER as i32,
+                        y as i32 * MULTIPLIER as i32, 
+                        MULTIPLIER, 
+                        MULTIPLIER
+                    )).expect("Drawing failed");
+                }
+            }
+        }
+
 }
 
 fn main() {
@@ -28,13 +57,14 @@ fn main() {
     turn_around.insert(3, 1);
 
     let length = LENGTH_TEST as usize;
-    let mut snake_length = 5;
+    let mut snake_length = 3;
     let mut grid: Vec<Vec<u8>> = vec![vec![0; length]; length];
     let mut head: (usize, usize) = (length / 2, length / 2);
     let mut snake: VecDeque<(usize, usize)> = VecDeque::new();
     let mut direction: u8 = 0;
     let mut prior_direction;
     let mut apple_present = false;
+    let mut ready = false;
 
     let sdl_content = sdl2::init().unwrap();
     let video_subsystem = sdl_content.video().unwrap();
@@ -53,6 +83,7 @@ fn main() {
     let mut event_pump = sdl_content.event_pump().unwrap();
 
     loop {
+        thread::sleep(time::Duration::from_millis(100));
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.clear();
 
@@ -67,18 +98,27 @@ fn main() {
                 },
                 Event::KeyDown { keycode: Some(Keycode::D), .. } => {
                     direction = 0;
+                    ready = true;
                 },
                 Event::KeyDown { keycode: Some(Keycode::S), .. } => {
                     direction = 1;
+                    ready = true;
                 },
                 Event::KeyDown { keycode: Some(Keycode::A), .. } => {
                     direction = 2;
+                    ready = true;
                 }
                 Event::KeyDown { keycode: Some(Keycode::W), .. } => {
                     direction = 3;
+                    ready = true;
                 },
                 _ => {}
             }
+        }
+
+        // Wait for input in order to start
+        if !ready {
+            continue;
         }
 
         if direction == *turn_around.get(&prior_direction).unwrap() {
@@ -131,35 +171,13 @@ fn main() {
 
         grid[head.0][head.1] = 1;
 
-        // Draw changes
-        // 1 is part of the snake, 2 is apple
-        for (x, x_item) in grid.iter().enumerate() {
-            for (y, y_item) in x_item.iter().enumerate() {
-                if *y_item == 1 {
-                    canvas.set_draw_color(Color::RGB(255, 255, 255));
-                    canvas.fill_rect(Rect::new(
-                        x as i32 * MULTIPLIER as i32,
-                        y as i32 * MULTIPLIER as i32, 
-                        MULTIPLIER, 
-                        MULTIPLIER
-                    )).expect("Drawing failed");
-                } else if *y_item == 2 {
-                    canvas.set_draw_color(Color::RED);
-                    canvas.fill_rect(Rect::new(
-                        x as i32 * MULTIPLIER as i32,
-                        y as i32 * MULTIPLIER as i32, 
-                        MULTIPLIER, 
-                        MULTIPLIER
-                    )).expect("Drawing failed");
-                }
-            }
-        }
+        draw_screen(&mut canvas, &grid);
 
         canvas.present();
 
         snake.push_back(head);
 
-        thread::sleep(time::Duration::from_millis(100));
+
     }
     println!("Game Over!");
 }
