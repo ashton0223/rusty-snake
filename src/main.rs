@@ -83,7 +83,9 @@ fn main() {
     let mut event_pump = sdl_content.event_pump().unwrap();
 
     loop {
+        // Slow the snake down
         thread::sleep(time::Duration::from_millis(100));
+
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.clear();
 
