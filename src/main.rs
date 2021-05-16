@@ -1,5 +1,7 @@
 extern crate sdl2;
 
+mod gui;
+
 use std::{process, vec};
 use std::{thread, time};
 use std::collections::{VecDeque, HashMap};
@@ -15,6 +17,7 @@ use sdl2::video::Window;
 
 const MULTIPLIER: u32 = 16;
 const LENGTH_TEST: u32 = 32;
+const TITLE: &str = "Rusty Snake";
 
 fn gen_coordinates(min: &u32, max: &u32) -> (usize, usize) {
     let mut rng = rand::thread_rng();
@@ -49,6 +52,11 @@ fn draw_screen(canvas: &mut Canvas<Window>, grid: &Vec<Vec<u8>>) {
 }
 
 fn main() {
+    gui::run_gui(TITLE);
+    run_snake();
+}
+
+fn run_snake() {
     // Used to know if the snake is doing a 180
     let mut turn_around: HashMap<u8, u8> = HashMap::new();
     turn_around.insert(0, 2);
@@ -70,7 +78,7 @@ fn main() {
     let video_subsystem = sdl_content.video().unwrap();
     
     let window = video_subsystem.window(
-         "Rusty Snake",
+         TITLE,
          LENGTH_TEST * MULTIPLIER,
          LENGTH_TEST * MULTIPLIER
         )
@@ -181,5 +189,4 @@ fn main() {
 
 
     }
-    println!("Game Over!");
 }
