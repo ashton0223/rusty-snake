@@ -2,8 +2,23 @@ use sdl2::pixels::Color;
 use sdl2::rect::Rect;
 use sdl2::render::Canvas;
 use sdl2::video::Window;
+use sdl2::render::TextureQuery;
+use sdl2::rwops::RWops;
 
 use super::logic;
+
+// Handle converting to i32
+macro_rules! rect(
+    ($x:expr, $y:expr, $w:expr, $h:expr) => (
+        Rect::new($x as i32, $y as i32, $w as u32, $h as u32)
+    )
+);
+
+fn get_centered_rect(rect_w: u32, rect_h: u32, window_w: u32, window_h: u32) -> Rect {
+    let x = (window_w - rect_w) / 2;
+    let y = (window_h - rect_h) / 2;
+    rect!(x, y, rect_w, rect_h)
+}
 
 fn draw_screen(canvas: &mut Canvas<Window>, grid: &Vec<Vec<u8>>, multiplier: u32) {
             // Draw changes
@@ -37,6 +52,41 @@ fn clear_screen(canvas: &mut Canvas<Window>) {
     canvas.clear();
 }
 
+fn draw_text(canvas: &mut Canvas<Window>, text: &str, window_w: u32) {
+    let ttf_context = sdl2::ttf::init().unwrap();
+    let texture_creator = canvas.texture_creator();
+
+    let font_file = RWops::from_bytes(
+        include_bytes!("../res/font/PressStart2P-Regular.ttf")
+    ).unwrap();
+
+    let font = ttf_context.load_font_from_rwops(
+        font_file,
+        16
+        )
+        .unwrap();
+    // render text to a surface and convert to texture
+    let surface = font
+        .render(text)
+        .blended_wrapped(Color::WHITE, 300)
+        .unwrap();
+    let texture = texture_creator
+        .create_texture_from_surface(&surface)
+        .unwrap();
+
+    let TextureQuery {width, height, ..} = texture.query();
+
+    let centered_rect = get_centered_rect(
+        width,
+        height,
+        window_w,
+        window_w
+    );
+
+    canvas.copy(&texture, None, Some(centered_rect)).unwrap();
+    canvas.present();
+}
+
 pub fn start_gfx(multiplier: u32, length_test: u32, title: &str) {
     let sdl_content = sdl2::init().unwrap();
     let video_subsystem = sdl_content.video().unwrap();
@@ -53,7 +103,9 @@ pub fn start_gfx(multiplier: u32, length_test: u32, title: &str) {
     let mut canvas = window.into_canvas().build().unwrap();
 
     let mut event_pump = sdl_content.event_pump().unwrap();
-    
+
+    logic::run_text_screen(&mut canvas, length_test * multiplier, draw_text);
+
     logic::run_snake(
         multiplier, 
         length_test, 

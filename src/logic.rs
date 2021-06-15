@@ -10,9 +10,18 @@ use sdl2::keyboard::Keycode;
 use sdl2::render::Canvas;
 use sdl2::video::Window;
 
+
 fn gen_coordinates(min: &u32, max: &u32) -> (usize, usize) {
     let mut rng = rand::thread_rng();
     (rng.gen_range(0..*min as usize), rng.gen_range(0..*max as usize))
+}
+
+pub fn run_text_screen(
+    canvas: &mut Canvas<Window>,
+    width: u32, 
+    draw_text: fn(canvas: &mut Canvas<Window>, text: &str, window_w: u32), 
+) {
+    draw_text(canvas, "Welcome to Snake!\n\nUse WASD keys to move", width);
 }
 
 pub fn run_snake(
