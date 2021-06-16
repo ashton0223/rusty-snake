@@ -19,9 +19,10 @@ fn gen_coordinates(min: &u32, max: &u32) -> (usize, usize) {
 pub fn run_text_screen(
     canvas: &mut Canvas<Window>,
     width: u32, 
+    text: &str,
     draw_text: fn(canvas: &mut Canvas<Window>, text: &str, window_w: u32), 
 ) {
-    draw_text(canvas, "Welcome to Snake!\n\nUse WASD keys to move", width);
+    draw_text(canvas, text, width);
 }
 
 pub fn run_snake(
@@ -31,7 +32,7 @@ pub fn run_snake(
     event_pump: &mut EventPump,
     clear_screen: fn(canvas: &mut Canvas<Window>),
     draw_screen: fn(canvas: &mut Canvas<Window>, grid: &Vec<Vec<u8>>, multiplier: u32) -> ()
-) {
+) -> u32 {
     // Used to know if the snake is doing a 180
     let mut turn_around: HashMap<u8, u8> = HashMap::new();
     turn_around.insert(0, 2);
@@ -149,4 +150,6 @@ pub fn run_snake(
 
 
     }
+
+    snake_length as u32 - 3
 }

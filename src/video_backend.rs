@@ -65,6 +65,7 @@ fn draw_text(canvas: &mut Canvas<Window>, text: &str, window_w: u32) {
         16
         )
         .unwrap();
+    
     // render text to a surface and convert to texture
     let surface = font
         .render(text)
@@ -104,14 +105,27 @@ pub fn start_gfx(multiplier: u32, length_test: u32, title: &str) {
 
     let mut event_pump = sdl_content.event_pump().unwrap();
 
-    logic::run_text_screen(&mut canvas, length_test * multiplier, draw_text);
-
-    logic::run_snake(
-        multiplier, 
-        length_test, 
+    logic::run_text_screen(
         &mut canvas, 
-        &mut event_pump,
-        clear_screen,
-        draw_screen
-    )
+        length_test * multiplier, 
+        "Welcome to Snake!\n\nUse WASD keys to move", 
+        draw_text
+    );
+
+    loop {
+        let score = logic::run_snake(
+            multiplier, 
+            length_test, 
+            &mut canvas, 
+            &mut event_pump,
+            clear_screen,
+            draw_screen
+        );
+        logic::run_text_screen(
+            &mut canvas,
+            length_test * multiplier,
+            format!("Score: {}\n\nPress any key to continue", score).as_str(), 
+            draw_text
+        );
+    }
 }
