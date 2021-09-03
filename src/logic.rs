@@ -28,6 +28,7 @@ pub fn run_text_screen(
 pub fn run_snake(
     multiplier: u32, 
     length_test: u32, 
+    initial_round: bool,
     canvas: &mut Canvas<Window>, 
     event_pump: &mut EventPump,
     clear_screen: fn(canvas: &mut Canvas<Window>),
@@ -48,7 +49,8 @@ pub fn run_snake(
     let mut direction: u8 = 0;
     let mut prior_direction;
     let mut apple_present = false;
-    let mut ready = false;
+    let mut ready1 = initial_round;
+    let mut ready2 = false;
 
 
 
@@ -69,26 +71,36 @@ pub fn run_snake(
                 },
                 Event::KeyDown { keycode: Some(Keycode::D), .. } => {
                     direction = 0;
-                    ready = true;
                 },
                 Event::KeyDown { keycode: Some(Keycode::S), .. } => {
                     direction = 1;
-                    ready = true;
                 },
                 Event::KeyDown { keycode: Some(Keycode::A), .. } => {
                     direction = 2;
-                    ready = true;
                 }
                 Event::KeyDown { keycode: Some(Keycode::W), .. } => {
                     direction = 3;
-                    ready = true;
+                },
+                _ => {}
+            }
+
+            // Needs both KeyUp, then KeyDown, then KeyUp to start
+            // Prevents accidentally starting a new round too early
+            match event {
+                Event::KeyUp { .. } => {
+                    ready1 = true;
+                },
+                Event::KeyDown { .. } => {
+                    if ready1 {
+                        ready2 = true;
+                    }
                 },
                 _ => {}
             }
         }
 
         // Wait for input in order to start
-        if !ready {
+        if !(ready1 && ready2) {
             continue;
         }
 

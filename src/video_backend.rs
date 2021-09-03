@@ -112,10 +112,13 @@ pub fn start_gfx(multiplier: u32, length_test: u32, title: &str) {
         draw_text
     );
 
+    let mut initial_round = true;
+
     loop {
         let score = logic::run_snake(
             multiplier, 
             length_test, 
+            initial_round,
             &mut canvas, 
             &mut event_pump,
             clear_screen,
@@ -127,5 +130,7 @@ pub fn start_gfx(multiplier: u32, length_test: u32, title: &str) {
             format!("Score: {}\n\nPress any key to continue", score).as_str(), 
             draw_text
         );
+        
+        initial_round = false;
     }
 }
