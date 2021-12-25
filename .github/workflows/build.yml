@@ -69,6 +69,8 @@ jobs:
       with:
         command: build
         args: --release
+    - name: Zip Binaries
+      run: ${{matrix.CMD_ZIP}}
     - name: Download Release URL
       uses: actions/download-artifact@v2
       with:
