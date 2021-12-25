@@ -37,15 +37,15 @@ jobs:
         include:
           - os: macos-latest
             CMD_ZIP: >
-              zip -r9 rusty-snake-macos rusty-snake.app/
+              zip -r9 rusty-snake-macos target/release/rusty-snake.app/
             FILE_NAME: rusty-snake-macos.zip
           - os: windows-latest
             CMD_ZIP: > 
-              powershell Compress-Archive rusty-snake.exe rusty-snake-windows.zip
+              powershell Compress-Archive target/release/rusty-snake.exe rusty-snake-windows.zip
             FILE_NAME: rusty-snake-windows.zip
           - os: ubuntu-latest
             CMD_ZIP: >
-              zip -r9 rusty-snake-linux rusty-snake
+              zip -r9 rusty-snake-linux target/release/rusty-snake
             FILE_NAME: rusty-snake-linux.zip
               
     steps:
