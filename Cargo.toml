@@ -13,7 +13,15 @@ rand = "0.8"
 [dependencies.sdl2]
 version = "0.34"
 default-features = false
+
+[target.'cfg(unix)'.dependencies.sdl2]
 features = ["ttf", "static-link", "use-pkgconfig"]
+
+[target.'cfg(windows)'.dependencies.sdl2]
+features = ["ttf", "static-link", "use-vcpkg"]
+
+[target.'cfg(macos)'.dependencies.sdl2]
+features = ["ttf", "static-link", "use-vcpkg"]
 
 [package.metadata.vcpkg]
 dependencies = ["sdl2", "sdl2-ttf"]
