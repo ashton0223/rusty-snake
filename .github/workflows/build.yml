@@ -59,7 +59,7 @@ jobs:
       with:
         command: build
         args: --release
-    - name: Download Release URL txt
+    - name: Download Release URL
       uses: actions/download-artifact@v2
       with:
         name: release_url
