@@ -1,3 +1,4 @@
+// Make Windows now open a cmd window
 #![windows_subsystem = "windows"]
 
 extern crate sdl2;
