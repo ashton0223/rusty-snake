@@ -54,6 +54,16 @@ jobs:
       uses: actions-rs/toolchain@v1
       with:
         toolchain: stable
+    - name: Setup vcpkg
+      uses: actions-rs/cargo@v1
+      with:
+        command: install
+        args: vcpkg
+    - name: Run vcpkg
+      uses: actions-rs/cargo@v1
+      with:
+        command: vcpkg
+        args: build
     - name: Build for each target
       uses: actions-rs/cargo@v1
       with:
