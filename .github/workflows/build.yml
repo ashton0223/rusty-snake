@@ -1,0 +1,80 @@
+on:
+  push:
+    tags:
+      - 'v*'
+  pull_request:
+    tags:
+      - 'v*'
+
+jobs:
+  createrelease:
+    name: Create Release
+    runs-on: [ubuntu-latest]
+    steps:
+    - name: Create Release
+      id: create_release # Is this necessary?
+      uses: actions/create-release@v1
+      env: 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+    - name: Store Release URL
+      run: echo "${{ steps.create_release.outputs.upload_url }}" > release_url.txt
+    - name: Save Release URL to upload builds
+      uses: actions/upload-artifact@v2
+      with:
+        name: release_url
+        path: release_url.txt
+
+  build:
+    name: Build
+    needs: createrelease
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            CMD_ZIP: >
+              zip -r9 rusty-snake-macos rusty-snake.app/
+            FILE_NAME: rusty-snake-macos.zip
+          - os: windows-latest
+            CMD_ZIP: > 
+              powershell Compress-Archive rusty-snake.exe rusty-snake-windows.zip
+            FILE_NAME: rusty-snake-windows.zip
+          - os: ubuntu-latest
+            CMD_ZIP: >
+              zip -r9 rusty-snake-linux rusty-snake
+            FILE_NAME: rusty-snake-linux.zip
+              
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+    - name: Build for each target
+      uses: actions-rs/cargo@v1
+      with:
+        command: build
+        args: --release
+    - name: Download Release URL txt
+      uses: actions/download-artifact@v2
+      with:
+        name: release_url
+    - name: Get Release URL
+      id: get_url
+      shell: bash
+      run: |
+        value=`cat release_url.txt`
+        echo ::set-output name=release_url::$value
+    - name: Upload Builds to Release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with: 
+        upload_url: ${{ steps.get_url.outputs.release_url }}
+        asset_path: ./${{matrix.FILE_NAME}}
+        asset_content_type: application/zip
+        asset_name: ${{matrix.FILE_NAME}}

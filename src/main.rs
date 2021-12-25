@@ -1,3 +1,5 @@
+#![windows_subsystem = "windows"]
+
 extern crate sdl2;
 
 mod video_backend;
