@@ -21,12 +21,14 @@ mod game;
 mod game_controller;
 mod game_view;
 
+const RES_WIDTH: usize = 512;
+
 fn main() {
     
     // Tell the window backend what OpenGL version to use
     let opengl = OpenGL::V3_2;
     // Settinsg for new window
-    let settings = WindowSettings::new("rusty-snake", [512; 2])
+    let settings = WindowSettings::new("rusty-snake", [RES_WIDTH as u32; 2])
         .graphics_api(opengl) // Set graphics API
         .exit_on_esc(true);
 
@@ -48,10 +50,8 @@ fn main() {
     // Actual event loop?
     while let Some(e) = events.next(&mut window) {
         // Pass events to game controller?
-        /* 
-        game_controller.event( game_view.settings.position,
-                                    game_view.settings.size,
-                                    &e);*/
+        
+        game_controller.event(&e);
         // Event loop emits render event
         if let Some(args) = e.render_args() {
             /*  Inside the render if let block, we call a method on the gl 
@@ -64,7 +64,7 @@ fn main() {
                 // Somehow makes the screen white?
                 clear([0.0; 4], g);
                 // Renders the game (somehow)
-                //game_view.draw(&game_controller, &c, g);
+                game_view.draw(&game_controller, &c, g);
             });
         }
     }
