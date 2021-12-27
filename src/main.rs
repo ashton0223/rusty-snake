@@ -1,16 +1,71 @@
-// Make Windows now open a cmd window
-#![windows_subsystem = "windows"]
+//#![deny(missing_docs)] // Forced documentation :)
 
-extern crate sdl2;
+//! Test thing
 
-mod video_backend;
-mod logic;
+extern crate piston;
+extern crate glutin_window;
+extern crate graphics;
+extern crate opengl_graphics;
 
-const MULTIPLIER: u32 = 16;
-const LENGTH_TEST: u32 = 32;
-const TITLE: &str = "Rusty Snake";
+use piston::window::WindowSettings;
+use piston::event_loop::{Events, EventLoop, EventSettings};
+use piston::input::RenderEvent;
+use glutin_window::GlutinWindow;
+use opengl_graphics::{OpenGL, GlGraphics};
+
+pub use crate::game::Game;
+pub use crate::game_controller::GameController;
+pub use crate::game_view::{GameView};
+
+mod game;
+mod game_controller;
+mod game_view;
 
 fn main() {
-    video_backend::start_gfx(MULTIPLIER, LENGTH_TEST, TITLE);
-}
+    
+    // Tell the window backend what OpenGL version to use
+    let opengl = OpenGL::V3_2;
+    // Settinsg for new window
+    let settings = WindowSettings::new("rusty-snake", [512; 2])
+        .graphics_api(opengl) // Set graphics API
+        .exit_on_esc(true);
 
+    // Actual new window
+    let mut window: GlutinWindow = settings.build()
+        .expect("Could not create window");
+
+    // Setup events for loop
+    let mut events = Events::new(EventSettings::new().lazy(true));
+    // Shaders/buffer information for OpenGL to talk to GPU
+    let mut gl = GlGraphics::new(opengl);
+
+    // Idk random game stuff
+    
+    let game = Game::new();
+    let mut game_controller = GameController::new(game);
+    let game_view = GameView::new();
+
+    // Actual event loop?
+    while let Some(e) = events.next(&mut window) {
+        // Pass events to game controller?
+        /* 
+        game_controller.event( game_view.settings.position,
+                                    game_view.settings.size,
+                                    &e);*/
+        // Event loop emits render event
+        if let Some(args) = e.render_args() {
+            /*  Inside the render if let block, we call a method on the gl 
+                object to create a graphics::Context and a graphics backend 
+                implementing the graphics::Graphics trait. */
+            gl.draw(args.viewport(), |c, g| {
+                // No idea to be honest
+                use graphics::{clear};
+
+                // Somehow makes the screen white?
+                clear([0.0; 4], g);
+                // Renders the game (somehow)
+                //game_view.draw(&game_controller, &c, g);
+            });
+        }
+    }
+}
