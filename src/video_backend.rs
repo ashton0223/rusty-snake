@@ -1,13 +1,26 @@
-use sdl2::pixels::Color;
+/*use sdl2::pixels::Color;
 use sdl2::rect::Rect;
 use sdl2::render::Canvas;
 use sdl2::video::Window;
 use sdl2::render::TextureQuery;
 use sdl2::rwops::RWops;
+*/
+//use super::logic;
 
-use super::logic;
+// Copy paste
+extern crate piston;
+extern crate glutin_window;
+extern crate graphics;
+extern crate opengl_graphics;
+
+use piston::window::WindowSettings;
+use piston::event_loop::{Events, EventLoop, EventSettings};
+use piston::input::RenderEvent;
+use glutin_window::GlutinWindow;
+use opengl_graphics::{OpenGL, GlGraphics};
 
 // Handle converting to i32
+/*
 macro_rules! rect(
     ($x:expr, $y:expr, $w:expr, $h:expr) => (
         Rect::new($x as i32, $y as i32, $w as u32, $h as u32)
@@ -86,9 +99,10 @@ fn draw_text(canvas: &mut Canvas<Window>, text: &str, window_w: u32) {
 
     canvas.copy(&texture, None, Some(centered_rect)).unwrap();
     canvas.present();
-}
+}*/
 
 pub fn start_gfx(multiplier: u32, length_test: u32, title: &str) {
+    /*
     let sdl_content = sdl2::init().unwrap();
     let video_subsystem = sdl_content.video().unwrap();
     
@@ -103,8 +117,44 @@ pub fn start_gfx(multiplier: u32, length_test: u32, title: &str) {
         
     let mut canvas = window.into_canvas().build().unwrap();
 
-    let mut event_pump = sdl_content.event_pump().unwrap();
+    let mut event_pump = sdl_content.event_pump().unwrap();*/
+    // Tell the window backend what OpenGL version to use
+    let opengl = OpenGL::V3_2;
+    // Settinsg for new window
+    let settings = WindowSettings::new("Sudoku", [length_test * multiplier; 2])
+        .graphics_api(opengl) // Set graphics API
+        .exit_on_esc(true);
 
+    // Actual new window
+    let mut window: GlutinWindow = settings.build()
+        .expect("Could not create window");
+
+    // Setup events for loop
+    let mut events = Events::new(EventSettings::new().lazy(true));
+    // Shaders/buffer information for OpenGL to talk to GPU
+    let mut gl = GlGraphics::new(opengl);
+
+    // Actual event loop?
+    while let Some(e) = events.next(&mut window) {
+        // Pass events to gameboard controller?
+        //gameboard_controller.event(&e);
+        // Event loop emits render event
+        if let Some(args) = e.render_args() {
+            /*  Inside the render if let block, we call a method on the gl 
+                object to create a graphics::Context and a graphics backend 
+                implementing the graphics::Graphics trait. */
+            gl.draw(args.viewport(), |c, g| {
+                // No idea to be honest
+                use graphics::{clear};
+
+                // Somehow makes the screen white?
+                clear([0.0; 4], g);
+                // Renders the gameboard (somehow)
+                //gameboard_view.draw(&gameboard_controller, &c, g);
+            });
+        }
+    }
+/*
     logic::run_text_screen(
         &mut canvas, 
         length_test * multiplier, 
@@ -132,5 +182,5 @@ pub fn start_gfx(multiplier: u32, length_test: u32, title: &str) {
         );
         
         initial_round = false;
-    }
+    }*/
 }

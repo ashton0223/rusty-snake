@@ -1,10 +1,10 @@
 // Make Windows now open a cmd window
 #![windows_subsystem = "windows"]
 
-extern crate sdl2;
+//extern crate sdl2;
 
 mod video_backend;
-mod logic;
+//mod logic;
 
 const MULTIPLIER: u32 = 16;
 const LENGTH_TEST: u32 = 32;
